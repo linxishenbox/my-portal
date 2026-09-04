@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人学术门户 & 导航</title>
+  <!-- Tailwind CSS & Vue 3 CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #FAF9F5; /* 极简奶油米白色 */
+      color: #292524;
+    }
+    .glass-nav {
+      background: rgba(250, 249, 245, 0.85);
+      backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-stone-200">
+
+  <div id="app" class="flex-1 flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="sticky top-0 z-50 glass-nav border-b border-stone-200/60 px-6 py-4 transition-all">
+      <div class="max-w-6xl mx-auto flex items-center justify-between">
+        <div class="flex items-center gap-3 cursor-pointer" @click="currentTab = 'home'">
+          <div class="w-8 h-8 rounded-full bg-stone-800 text-stone-50 flex items-center justify-center font-semibold text-sm">P</div>
+          <span class="font-medium tracking-wide text-stone-800 text-base">Personal Space</span>
+        </div>
+        
+        <nav class="flex items-center gap-1 sm:gap-2">
+          <button 
+            v-for="item in navItems" 
+            :key="item.id"
+            @click="currentTab = item.id"
+            :class="[
+              'px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200',
+              currentTab === item.id 
+                ? 'bg-stone-800 text-stone-50 shadow-sm' 
+                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
+            ]"
+          >
+            {{ item.name }}
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- 主体区域 -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-6 md:p-10">
+      
+      <!-- 1. 主页 (个人成果 + 计划面板) -->
+      <section v-if="currentTab === 'home'" class="space-y-10">
+        <!-- 个人简介 Header -->
+        <div class="p-8 rounded-3xl bg-white/70 border border-stone-200/70 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div>
+            <span class="inline-block px-3 py-1 bg-stone-100 text-stone-600 rounded-full text-xs font-medium mb-3">Academic & Research</span>
+            <h1 class="text-3xl font-semibold text-stone-800 tracking-tight">欢迎来到我的个人门户</h1>
+            <p class="text-stone-500 mt-2 text-sm max-w-2xl leading-relaxed">学术研究 / 系统控制 / 算法建模。聚焦高效科研与日常规划。</p>
+          </div>
+          <div class="flex gap-3">
+            <span class="px-4 py-2 bg-stone-100/80 rounded-xl text-xs font-medium text-stone-600">📍 江南大学</span>
+          </div>
+        </div>
+
+        <!-- Bento Grid 个人成果展示 -->
+        <div>
+          <h2 class="text-lg font-medium text-stone-700 mb-4 tracking-tight flex items-center gap-2">
+            <span class="w-1.5 h-4 bg-stone-800 rounded-full"></span> 个人成果与研究
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div v-for="(achievement, idx) in achievements" :key="idx" 
+                 class="p-6 bg-white/80 border border-stone-200/60 rounded-2xl shadow-sm hover:border-stone-300 transition-all duration-300 flex flex-col justify-between group">
+              <div>
+                <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider">{{ achievement.tag }}</span>
+                <h3 class="font-medium text-stone-800 mt-2 group-hover:text-stone-900 transition-colors">{{ achievement.title }}</h3>
+                <p class="text-xs text-stone-500 mt-2 leading-relaxed">{{ achievement.desc }}</p>
+              </div>
+              <div class="mt-6 pt-4 border-t border-stone-100 flex justify-between items-center text-xs text-stone-400">
+                <span>{{ achievement.date }}</span>
+                <span class="group-hover:translate-x-1 transition-transform text-stone-600">→</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 计划面板 (每日/每周/每月) -->
+        <div class="p-8 bg-white/80 border border-stone-200/60 rounded-3xl shadow-sm">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+              <h2 class="text-lg font-medium text-stone-800">目标与计划面板</h2>
+              <p class="text-xs text-stone-400 mt-1">编辑内容将自动实时存储至本地浏览器</p>
+            </div>
+            
+            <!-- 周期切换器 -->
+            <div class="flex bg-stone-100/80 p-1 rounded-xl">
+              <button v-for="period in ['day', 'week', 'month']" :key="period"
+                      @click="planPeriod = period"
+                      :class="[
+                        'px-4 py-1.5 text-xs font-medium rounded-lg transition-all',
+                        planPeriod === period ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500 hover:text-stone-800'
+                      ]">
+                {{ period === 'day' ? '每日计划' : period === 'week' ? '每周目标' : '每月规划' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- 输入框 -->
+          <div class="flex gap-2 mb-6">
+            <input v-model="newPlanText" @keyup.enter="addPlan" type="text" 
+                   :placeholder="`添加新的${planPeriod === 'day' ? '每日计划' : planPeriod === 'week' ? '每周目标' : '每月规划'}...`"
+                   class="flex-1 bg-stone-50/70 border border-stone-200/80 rounded-xl px-4 py-2.5 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300 transition-all">
+            <button @click="addPlan" class="px-5 py-2.5 bg-stone-800 text-stone-50 text-sm font-medium rounded-xl hover:bg-stone-700 transition-colors">
+              添加
+            </button>
+          </div>
+
+          <!-- 计划列表 -->
+          <div class="space-y-2">
+            <div v-for="plan in currentPlans" :key="plan.id" 
+                 class="flex items-center justify-between p-3.5 bg-stone-50/50 hover:bg-stone-100/60 rounded-xl transition-all border border-stone-100 group">
+              <div class="flex items-center gap-3 cursor-pointer flex-1" @click="togglePlan(plan.id)">
+                <div :class="['w-5 h-5 rounded-md border flex items-center justify-center transition-all', 
+                             plan.done ? 'bg-stone-700 border-stone-700 text-white' : 'border-stone-300 bg-white']">
+                  <span v-if="plan.done" class="text-xs">✓</span>
+                </div>
+                <span :class="['text-sm transition-all', plan.done ? 'line-through text-stone-400' : 'text-stone-700']">
+                  {{ plan.text }}
+                </span>
+              </div>
+              <button @click="removePlan(plan.id)" class="text-stone-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity text-xs px-2">
+                删除
+              </button>
+            </div>
+            <div v-if="currentPlans.length === 0" class="text-center py-8 text-xs text-stone-400">
+              暂无计划，在上方添加你的第一条目标吧
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. 二级分类网址导航页 -->
+      <section v-else class="space-y-6">
+        <div class="flex items-center justify-between border-b border-stone-200/60 pb-4">
+          <div>
+            <h1 class="text-2xl font-semibold text-stone-800 tracking-tight">{{ getCategoryName(currentTab) }}</h1>
+            <p class="text-xs text-stone-400 mt-1">常用的网页快速导航与收藏</p>
+          </div>
+        </div>
+
+        <!-- 网址卡片网格 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <a v-for="(site, i) in currentCategorySites" :key="i" :href="site.url" target="_blank"
+             class="p-5 bg-white/80 border border-stone-200/60 rounded-2xl shadow-sm hover:shadow-md hover:border-stone-300 transition-all duration-200 flex flex-col justify-between group">
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-stone-700 font-medium text-sm group-hover:bg-stone-800 group-hover:text-stone-50 transition-colors">
+                {{ site.name.charAt(0) }}
+              </div>
+              <span class="text-stone-300 group-hover:text-stone-600 transition-colors text-sm">↗</span>
+            </div>
+            <div class="mt-4">
+              <h3 class="font-medium text-stone-800 text-sm group-hover:text-stone-900">{{ site.name }}</h3>
+              <p class="text-xs text-stone-400 mt-1 truncate">{{ site.url }}</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="border-t border-stone-200/60 py-6 text-center text-xs text-stone-400">
+      <p>© 2026 Personal Knowledge & Navigation Portal</p>
+    </footer>
+  </div>
+
+  <!-- Vue逻辑与数据定义 -->
+  <script>
+    const { createApp, ref, computed, watch, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const currentTab = ref('home');
+        const planPeriod = ref('day');
+        const newPlanText = ref('');
+
+        const navItems = [
+          { id: 'home', name: '主页' },
+          { id: 'ai', name: 'AI工具' },
+          { id: 'literature', name: '文献检索' },
+          { id: 'school', name: '学校网址' },
+          { id: 'common', name: '常用网站' },
+          { id: 'other', name: '其他' }
+        ];
+
+        // 预设成果展示数据
+        const achievements = ref([
+          { tag: 'Microalgae Study', title: '微藻户外培养建模与过程控制研究', desc: '探索动态环境下微藻生长机理与优化控制策略。', date: '2026' },
+          { tag: 'Control Theory', title: '双层 EMPC 控制架构设计', desc: '基于非线性预测模型的轨迹优化与下层跟踪控制系统。', date: '2026' },
+          { tag: 'Academic Project', title: 'IFAC 2026 Benchmark 挑战赛', desc: '基于 MATLAB 的微藻培养过程控制算法开发。', date: '2026' }
+        ]);
+
+        // 导航网址配置 (包含您给出的特定网址)
+        const sitesData = {
+          ai: [
+            { name: 'ChatGPT', url: 'https://chatgpt.com/' },
+            { name: 'Google Gemini', url: 'https://gemini.google.com/app' },
+            { name: 'Diffmind', url: 'https://diffmind.ai/' },
+            { name: 'Poe AI', url: 'https://poe.com/login?redirect_url=%2F' }
+          ],
+          literature: [
+            { name: 'Sci-Hub', url: 'https://sci-hub.box' },
+            { name: 'Google Scholar', url: 'https://scholar.google.com/' },
+            { name: '江南大学图书馆', url: 'https://lib.jiangnan.edu.cn/' }
+          ],
+          school: [
+            { name: '江南大学信息化建设与管理中心', url: 'https://nic.jiangnan.edu.cn/' }
+          ],
+          common: [
+            { name: 'Mail.com', url: 'https://www.mail.com/' },
+            { name: 'QQ 邮箱', url: 'https://mail.qq.com/' },
+            { name: 'Gmail', url: 'https://mail.google.com/mail/u/0/' },
+            { name: '163 网易邮箱', url: 'https://email.163.com/' }
+          ],
+          other: [
+            { name: 'GitHub', url: 'https://github.com/' },
+            { name: 'Vercel Dashboard', url: 'https://vercel.com/' }
+          ]
+        };
+
+        // 动态计划持久化存储 (LocalStorage)
+        const plans = ref({ day: [], week: [], month: [] });
+
+        onMounted(() => {
+          const savedPlans = localStorage.getItem('my_portal_plans');
+          if (savedPlans) {
+            plans.value = JSON.parse(savedPlans);
+          } else {
+            // 预设示例计划
+            plans.value = {
+              day: [{ id: 1, text: '查看最新微藻培养文献', done: false }],
+              week: [{ id: 2, text: '完成双层 EMPC 模型代码测试', done: false }],
+              month: [{ id: 3, text: '准备组会 PPT 报告', done: false }]
+            };
+          }
+        });
+
+        watch(plans, (newVal) => {
+          localStorage.setItem('my_portal_plans', JSON.stringify(newVal));
+        }, { deep: true });
+
+        const currentPlans = computed(() => plans.value[planPeriod.value] || []);
+        const currentCategorySites = computed(() => sitesData[currentTab.value] || []);
+
+        const getCategoryName = (id) => navItems.find(item => item.id === id)?.name || '';
+
+        const addPlan = () => {
+          if (!newPlanText.value.trim()) return;
+          plans.value[planPeriod.value].push({
+            id: Date.now(),
+            text: newPlanText.value.trim(),
+            done: false
+          });
+          newPlanText.value = '';
+        };
+
+        const togglePlan = (id) => {
+          const plan = plans.value[planPeriod.value].find(p => p.id === id);
+          if (plan) plan.done = !plan.done;
+        };
+
+        const removePlan = (id) => {
+          plans.value[planPeriod.value] = plans.value[planPeriod.value].filter(p => p.id !== id);
+        };
+
+        return {
+          currentTab,
+          planPeriod,
+          newPlanText,
+          navItems,
+          achievements,
+          currentPlans,
+          currentCategorySites,
+          getCategoryName,
+          addPlan,
+          togglePlan,
+          removePlan
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

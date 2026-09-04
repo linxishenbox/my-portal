@@ -56,13 +56,39 @@
       <section v-if="currentTab === 'home'" class="space-y-10">
         <!-- 个人简介 Header -->
         <div class="p-8 rounded-3xl bg-white/70 border border-stone-200/70 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <!-- 左侧：标题与简介 -->
           <div>
             <span class="inline-block px-3 py-1 bg-stone-100 text-stone-600 rounded-full text-xs font-medium mb-3">Academic & Research</span>
             <h1 class="text-3xl font-semibold text-stone-800 tracking-tight">欢迎来到我的个人门户</h1>
-            <p class="text-stone-500 mt-2 text-sm max-w-2xl leading-relaxed">学术研究 / 系统控制 / 算法建模。聚焦高效科研与日常规划。</p>
+            <p class="text-stone-500 mt-2 text-sm max-w-xl leading-relaxed">学术研究 / 系统控制 / 算法建模。聚焦高效科研与日常规划。</p>
           </div>
-          <div class="flex gap-3">
-            <span class="px-4 py-2 bg-stone-100/80 rounded-xl text-xs font-medium text-stone-600">📍 江南大学</span>
+
+          <!-- 右侧：个人详细资料卡片 -->
+          <div class="flex items-center gap-4 p-4 bg-stone-100/60 border border-stone-200/80 rounded-2xl shrink-0">
+            <!-- 头像照片 -->
+            <img 
+              src="photoofme.jpg" 
+              alt="头像" 
+              class="w-16 h-16 rounded-2xl object-cover bg-stone-200 border border-stone-300/60 shadow-sm"
+            >
+            
+            <!-- 个人信息列表 -->
+            <div class="space-y-1 text-xs text-stone-600">
+              <div class="font-semibold text-stone-800 text-sm flex items-center gap-2">
+                <span>Lumi</span>
+                <span class="px-2 py-0.5 bg-stone-200/80 text-stone-600 text-[10px] rounded-full font-normal">🌱 单身</span>
+              </div>
+              <!-- 修改后的学校行：增加了学校 Logo 照片 -->
+              <div class="flex items-center gap-1.5">
+                <img 
+                  src="school_logo.png" 
+                  alt="校徽" 
+                  class="w-4 h-4 object-contain rounded-full"
+                >
+                <span><strong>学校：</strong>江南大学</span>
+              </div>
+              <div class="flex items-center gap-1">📚 <span><strong>专业：</strong>自动化/ 控制科学与工程</span></div>
+            </div>
           </div>
         </div>
 
